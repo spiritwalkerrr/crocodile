@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'dart:math';
 import 'package:flutter/material.dart';
 import "game.dart";
 
@@ -9,13 +12,24 @@ class GameBoard extends StatefulWidget {
 }
 
 // these two store the icon size of the meat icons
-double icon1Size = 1;
-double icon2Size = 1;
-bool gameStarted = false;
-int counter = 0;
 
 // gameboard containing a number of items placed in a stack
 class _GameBoardState extends State<GameBoard> {
+  late Game game;
+
+  @override
+  void initState() {
+    super.initState();
+
+    game = Game();
+
+    Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      setState(() {
+        game.currentRotation += 2;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,16 +43,16 @@ class _GameBoardState extends State<GameBoard> {
             // required to realise when we press / unpress
             onTapDown: (details) {
               setState(() {
-                p1press();
+                game.p1press();
               });
             },
             onTapUp: (details) {
               setState(() {
-                p1unpress();
+                game.p1unpress();
               });
             },
             child: Transform.scale(
-              scale: icon1Size,
+              scale: game.icon1Size,
               child: Image.asset(
                 "assets/meat.jpeg",
                 width: 80,
@@ -52,7 +66,7 @@ class _GameBoardState extends State<GameBoard> {
             left: 100,
             top: 350,
             child: Transform.rotate(
-              angle: pi / currentRotation,
+              angle: game.currentRotation / 180 * pi,
               child: Image.asset(
                 "assets/crocodile_passive.jpeg",
                 width: 200,
@@ -67,16 +81,16 @@ class _GameBoardState extends State<GameBoard> {
             // required to realise when we press / unpress
             onTapDown: (details) {
               setState(() {
-                p2press();
+                game.p2press();
               });
             },
             onTapUp: (details) {
               setState(() {
-                p2unpress();
+                game.p2unpress();
               });
             },
             child: Transform.scale(
-              scale: icon2Size,
+              scale: game.icon2Size,
               child: Image.asset(
                 "assets/meat.jpeg",
                 width: 80,
@@ -94,10 +108,10 @@ class _GameBoardState extends State<GameBoard> {
             child: ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    startGame();
+                    game.startGame();
                   });
                 },
-                child: Text(counter.toString())),
+                child: Text("todo")),
           ),
         ),
       ],
