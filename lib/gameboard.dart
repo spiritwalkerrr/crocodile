@@ -22,99 +22,90 @@ class _GameBoardState extends State<GameBoard> {
     super.initState();
 
     game = Game();
-
-    Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      setState(() {
-        game.currentRotation += 2;
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-      children: [
-        Positioned(
-          // top meat button
-          left: 160,
-          top: 30,
-          child: GestureDetector(
-            // required to realise when we press / unpress
-            onTapDown: (details) {
-              setState(() {
-                game.p1press();
-              });
-            },
-            onTapUp: (details) {
-              setState(() {
-                game.p1unpress();
-              });
-            },
-            child: Transform.scale(
-              scale: game.icon1Size,
-              child: Image.asset(
-                "assets/meat.jpeg",
-                width: 80,
-                height: 80,
+      body: AnimatedBuilder(
+        animation: game,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              Positioned(
+                // top meat button
+                left: 160,
+                top: 30,
+                child: GestureDetector(
+                  // required to realise when we press / unpress
+                  onTapDown: (details) {
+                    game.p1press();
+                  },
+                  onTapUp: (details) {
+                    game.p1unpress();
+                  },
+                  child: Transform.scale(
+                    scale: game.icon1Size,
+                    child: Image.asset(
+                      "assets/meat.jpeg",
+                      width: 80,
+                      height: 80,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-        Positioned(
-            // crocodile
-            left: 100,
-            top: 350,
-            child: Transform.rotate(
-              angle: game.currentRotation / 180 * pi,
-              child: Image.asset(
-                "assets/crocodile_passive.jpeg",
-                width: 200,
-                height: 200,
+              Positioned(
+                  // crocodile
+                  left: 100,
+                  top: 350,
+                  child: Transform.rotate(
+                    angle: game.currentRotation / 180 * pi,
+                    child: Image.asset(
+                      "assets/crocodile_passive.jpeg",
+                      width: 200,
+                      height: 200,
+                    ),
+                  )),
+              Positioned(
+                // bottom meat button
+                left: 160,
+                bottom: 30,
+                child: GestureDetector(
+                  // required to realise when we press / unpress
+                  onTapDown: (details) {
+                    game.p2press();
+                  },
+                  onTapUp: (details) {
+                    game.p2unpress();
+                  },
+                  child: Transform.scale(
+                    scale: game.icon2Size,
+                    child: Image.asset(
+                      "assets/meat.jpeg",
+                      width: 80,
+                      height: 80,
+                    ),
+                  ),
+                ),
               ),
-            )),
-        Positioned(
-          // bottom meat button
-          left: 160,
-          bottom: 30,
-          child: GestureDetector(
-            // required to realise when we press / unpress
-            onTapDown: (details) {
-              setState(() {
-                game.p2press();
-              });
-            },
-            onTapUp: (details) {
-              setState(() {
-                game.p2unpress();
-              });
-            },
-            child: Transform.scale(
-              scale: game.icon2Size,
-              child: Image.asset(
-                "assets/meat.jpeg",
-                width: 80,
-                height: 80,
+              Positioned(
+                // crocodile
+                left: 0,
+                top: 400,
+                child: Transform.rotate(
+                  angle: 4.75,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      game.startGame();
+                    },
+                    child: Text("todo"),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-        Positioned(
-          // crocodile
-          left: 0,
-          top: 400,
-          child: Transform.rotate(
-            angle: 4.75,
-            child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    game.startGame();
-                  });
-                },
-                child: Text("todo")),
-          ),
-        ),
-      ],
-    ));
+            ],
+          );
+        },
+      ),
+    );
   }
 }
