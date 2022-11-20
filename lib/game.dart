@@ -60,7 +60,7 @@ class Game extends ChangeNotifier {
           moveTimeout = 3 + randomNum(4, 10); // make a move in between 5-8s
         } else if (moveTimeout > 3) {
           rotateCroc();
-        } else if (moveTimeout > 1) {
+        } else if (moveTimeout == 3) {
           // during the second you have time to react
           if (nextAction == 1) {
             // check if croc is attacking
@@ -225,13 +225,13 @@ class Game extends ChangeNotifier {
   animateAttack() {
     if (nextTarget == 1) {
       currentRotation = 90;
-      currentPosition += 70;
+      currentPosition += 150;
       if (nextAction == 1) {
         aggressive = true;
       }
     } else {
       currentRotation = -90;
-      currentPosition -= 70;
+      currentPosition -= 150;
       if (nextAction == 1) {
         aggressive = true;
       }

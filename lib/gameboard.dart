@@ -49,20 +49,22 @@ class _GameBoardState extends State<GameBoard> {
                   ),
                 ),
               ),
-              Positioned(
-                  // crocodile
-                  left: 100,
-                  top: 350 + game.currentPosition.toDouble(),
-                  child: Transform.rotate(
-                    angle: game.currentRotation / 180 * pi,
-                    child: Image.asset(
-                      game.aggressive == true
-                          ? "assets/crocodile_angry.png"
-                          : "assets/crocodile_passive.png",
-                      width: 200,
-                      height: 200,
-                    ),
-                  )),
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 1000),
+                // crocodile
+                left: 100,
+                top: 350 + game.currentPosition.toDouble(),
+                child: Transform.rotate(
+                  angle: game.currentRotation / 180 * pi,
+                  child: Image.asset(
+                    game.aggressive == true
+                        ? "assets/crocodile_angry.png"
+                        : "assets/crocodile_passive.png",
+                    width: 200,
+                    height: 200,
+                  ),
+                ),
+              ),
               Positioned(
                 // bottom meat button
                 left: 160,
