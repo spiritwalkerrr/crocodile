@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 import "game.dart";
@@ -39,29 +37,28 @@ class _GameBoardState extends State<GameBoard> {
                 child: GestureDetector(
                   // required to realise when we press / unpress
                   onTapDown: (details) {
-                    game.p1press();
+                    game.p2press();
                   },
                   onTapUp: (details) {
-                    game.p1unpress();
+                    game.p2unpress();
                   },
-                  child: Transform.scale(
-                    scale: game.icon1Size,
-                    child: Image.asset(
-                      "assets/meat.jpeg",
-                      width: 80,
-                      height: 80,
-                    ),
+                  child: Image.asset(
+                    "assets/meat.jpeg",
+                    width: 80,
+                    height: 80,
                   ),
                 ),
               ),
               Positioned(
                   // crocodile
                   left: 100,
-                  top: 350,
+                  top: 350 + game.currentPosition.toDouble(),
                   child: Transform.rotate(
                     angle: game.currentRotation / 180 * pi,
                     child: Image.asset(
-                      "assets/crocodile_passive.jpeg",
+                      game.aggressive == true
+                          ? "assets/crocodile_angry.png"
+                          : "assets/crocodile_passive.png",
                       width: 200,
                       height: 200,
                     ),
@@ -73,32 +70,118 @@ class _GameBoardState extends State<GameBoard> {
                 child: GestureDetector(
                   // required to realise when we press / unpress
                   onTapDown: (details) {
-                    game.p2press();
+                    game.p1press();
+                    game.p2press(); // todo: remove this
                   },
                   onTapUp: (details) {
-                    game.p2unpress();
+                    game.p1unpress();
+                    // game.p2unpress(); // todo: remove this
                   },
-                  child: Transform.scale(
-                    scale: game.icon2Size,
-                    child: Image.asset(
-                      "assets/meat.jpeg",
-                      width: 80,
-                      height: 80,
+                  child: Image.asset(
+                    "assets/meat.jpeg",
+                    width: 80,
+                    height: 80,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: -270,
+                top: 410,
+                child: Transform.rotate(
+                  angle: -90 / 180 * pi,
+                  child: SizedBox(
+                      height: 30,
+                      width: 600,
+                      child: Text(
+                        game.alertText,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 25),
+                      )),
+                ),
+              ),
+              Positioned(
+                left: -230,
+                top: 410,
+                child: Transform.rotate(
+                  angle: -90 / 180 * pi,
+                  child: SizedBox(
+                    height: 30,
+                    width: 600,
+                    child: Text(
+                      game.instructionText,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                   ),
                 ),
               ),
               Positioned(
-                // crocodile
                 left: 0,
-                top: 400,
+                top: 100,
                 child: Transform.rotate(
-                  angle: 4.75,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      game.startGame();
-                    },
-                    child: Text("todo"),
+                  angle: -90 / 180 * pi,
+                  child: SizedBox(
+                    height: 30,
+                    width: 90,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Opacity(
+                          opacity: game.p2score > 2 ? 1 : 0,
+                          child: Expanded(
+                            child: Image.asset("assets/heart.png"),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: game.p2score > 1 ? 1 : 0,
+                          child: Expanded(
+                            child: Image.asset("assets/heart.png"),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: game.p2score > 0 ? 1 : 0,
+                          child: Expanded(
+                            child: Image.asset("assets/heart.png"),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                top: 720,
+                child: Transform.rotate(
+                  angle: -90 / 180 * pi,
+                  child: SizedBox(
+                    height: 30,
+                    width: 90,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Opacity(
+                          opacity: game.p1score > 0 ? 1 : 0,
+                          child: Expanded(
+                            child: Image.asset("assets/heart.png"),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: game.p1score > 1 ? 1 : 0,
+                          child: Expanded(
+                            child: Image.asset("assets/heart.png"),
+                          ),
+                        ),
+                        Opacity(
+                          opacity: game.p1score > 2 ? 1 : 0,
+                          child: Expanded(
+                            child: Image.asset("assets/heart.png"),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),

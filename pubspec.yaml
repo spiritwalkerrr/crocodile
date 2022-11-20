@@ -90,5 +90,7 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
   assets:
-  - assets/crocodile_passive.jpeg
+  - assets/crocodile_passive.png
+  - assets/crocodile_angry.png
   - assets/meat.jpeg
+  - assets/heart.png
