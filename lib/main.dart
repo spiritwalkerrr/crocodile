@@ -1,9 +1,14 @@
+import 'package:crocodile/startscreen.dart';
 import 'package:flutter/material.dart';
-import 'gameboard.dart';
 
 void main() {
   runApp(const MyApp());
 }
+
+int p1lives = 3;
+int p2lives = 3;
+String p1name = "Player 1";
+String p2name = "Player 2";
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const GameBoard(),
+      home: const StartScreen(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:crocodile/main.dart';
 import 'package:flutter/material.dart';
 import "dart:math";
 
@@ -6,11 +7,11 @@ class Game extends ChangeNotifier {
   // basic variables
   bool p1pressed = false;
   bool p2pressed = false;
-  int currentRotation = -90; // -90 p2 90 p1
-  int currentPosition = 0; // 0 == center, higher is p1 lower is p2
+  int currentRotation = 0; // -90 p2 90 p1
+  var crocAlignment = Alignment.center;
   bool aggressive = false;
-  int p1score = 3;
-  int p2score = 3;
+  int p1score = p1lives;
+  int p2score = p2lives;
   bool p1attacked = false;
   bool p2attacked = false;
   bool p1faked = false;
@@ -32,36 +33,44 @@ class Game extends ChangeNotifier {
   int gameCountdown = 6;
 
   int randomNum(int min, int max) {
+    // used to generate random numbers for the game logic
     return min + Random().nextInt(max);
   }
 
   Game() {
     Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      // timer controls the game
       if (gameState == 2) {
-        resetCrocodile();
+        // if the game is during countdown
+        resetCrocodile(); // resets the crocodile to the middle
         instructionText = "";
         if (gameCountdown > 4) {
+          // 4 = 2s left
           alertText = "3";
         } else if (gameCountdown > 2) {
+          // 2 = 1s left
           alertText = "2";
         } else if (gameCountdown > 0) {
           alertText = "1";
         } else {
           alertText = "Watch your Fingers!";
-          gameState = 3;
+          gameState = 3; // game round has started
         }
-        gameCountdown--;
+        gameCountdown--; // countdown continues if we are in this phase
       }
 
       if (gameState == 3) {
+        // if the game is during round
         if (moveTimeout == 0) {
           // see if a move is active, if its 0 its not, need to generate a new one
-          generateAction();
+          generateAction(); // generates a move for the croc (attack/fake)
           moveTimeout = 3 + randomNum(4, 10); // make a move in between 5-8s
-        } else if (moveTimeout > 3) {
+        } else if (moveTimeout > 5) {
           rotateCroc();
+        } else if (moveTimeout == 4) {
+          correctRotation();
         } else if (moveTimeout == 3) {
-          // during the second you have time to react
+          // during the last second you have time to react
           if (nextAction == 1) {
             // check if croc is attacking
             if (nextTarget == 1) {
@@ -77,27 +86,10 @@ class Game extends ChangeNotifier {
               p2faked = true; // set faked player variable
             }
           }
-          animateAttack();
+          animateAttack(); // animate attack
         } else if (moveTimeout == 1) {
-          if (p1attacked && p1pressed) {
-            alertText = " Player 1 lost a finger!";
-            instructionText = "Lift fingers to reset.";
-            p1score--;
-            resetRound();
-          } else if (p2attacked && p2pressed) {
-            alertText = " Player 2 lost a finger!";
-            instructionText = "Lift fingers to reset.";
-            p2score--;
-            resetRound();
-          } else if (p1faked && p1pressed) {
-            alertText = " Player 1 didn't fall for it!";
-            instructionText = "Lift fingers to reset.";
-            resetRound();
-          } else if (p2faked && p2pressed) {
-            alertText = " Player 2 didn't fall for it!";
-            instructionText = "Lift fingers to reset.";
-            resetRound();
-          }
+          // check if player didnt react in time
+          resetRound();
           p1attacked = false;
           p2attacked = false;
           p1faked = false;
@@ -117,32 +109,38 @@ class Game extends ChangeNotifier {
     p1pressed = true;
     if (p2pressed && gameState == 1) {
       // check if both buttons are pressed and if game is pre-countdown
-      gameState = 2;
+      gameState = 2; // start countdown
     }
   }
 
   p1unpress() {
     p1pressed = false;
     if (!p2pressed && gameState == 4) {
+      // check if previous round is over
+      gameState = 1; // reset to pre-game
       alertText = "Place both fingers to start!";
       instructionText = "";
-      gameState = 1;
-    }
-    if (gameState == 2) {
+    } else if (gameState == 2) {
       // during countdown it resets the countdown
       resetRound();
-    }
-    if (gameState == 3) {
+      alertText = "Place both fingers to start!";
+      instructionText = "";
+    } else if (gameState == 3) {
+      // check if we are during game
       // when a finger is removed during round
       if (!p1attacked) {
         // checks if that player was NOT attacked
-        alertText = " Player 1 wasn't attacked!";
-        instructionText = "Lift fingers to reset.";
+        alertText = "$p1name wasn't attacked!";
         p1score--;
+        if (p1score > 0) {
+          instructionText = "Lift fingers to reset.";
+        } else {
+          instructionText = "Player 1 lost the game.";
+        }
         resetRound();
         gameState = 4;
       } else if (p1attacked) {
-        alertText = " Player 1 evaded!";
+        alertText = "$p1name evaded!";
         instructionText = "Lift fingers to reset.";
       }
     }
@@ -152,32 +150,38 @@ class Game extends ChangeNotifier {
     p2pressed = true;
     if (p1pressed && gameState == 1) {
       // check if both buttons are pressed and if game is pre-countdown
-      gameState = 2;
+      gameState = 2; // start countdown
+      alertText = "Place both fingers to start!";
+      instructionText = "";
     }
   }
 
   p2unpress() {
     p2pressed = false;
     if (!p1pressed && gameState == 4) {
-      alertText = "Place both fingers to start!";
-      instructionText = "";
-      gameState = 1;
-    }
-    if (gameState == 2) {
+      // check if previous round is over
+      gameState = 1; // reset to pre-game
+    } else if (gameState == 2) {
       // during countdown it resets the countdown
       resetRound();
-    }
-    if (gameState == 3) {
+      alertText = "Place both fingers to start!";
+      instructionText = "";
+    } else if (gameState == 3) {
+      // check if we are during game
       // when a finger is removed during round
       if (!p2attacked) {
         // checks if that player was NOT attacked
-        alertText = "Player 2 wasn't attacked!";
-        instructionText = "Lift fingers to reset.";
+        alertText = "$p2name wasn't attacked!";
         p2score--;
+        if (p2score > 0) {
+          instructionText = "Lift fingers to reset.";
+        } else {
+          instructionText = "Player 2 lost the game.";
+        }
         resetRound();
         gameState = 4;
       } else if (p2attacked) {
-        alertText = " Player 2 evaded!";
+        alertText = " $p2name evaded!";
         instructionText = "Lift fingers to reset.";
       }
     }
@@ -186,12 +190,11 @@ class Game extends ChangeNotifier {
   rotateCroc() {
     if (rotateTimeout == 0) {
       // see if its time to rotate
-      // 50% chance to rotate
       rotateTimeout = randomNum(2, 5); // disable rotation for 1-2.5s
-      if (currentRotation == -90) {
+      if (currentRotation == 0) {
         currentRotation = 90;
       } else {
-        currentRotation = -90;
+        currentRotation = 0;
       }
     } else {
       rotateTimeout--;
@@ -224,22 +227,28 @@ class Game extends ChangeNotifier {
 
   animateAttack() {
     if (nextTarget == 1) {
-      currentRotation = 90;
-      currentPosition += 150;
+      crocAlignment = Alignment.centerLeft;
       if (nextAction == 1) {
         aggressive = true;
       }
     } else {
-      currentRotation = -90;
-      currentPosition -= 150;
+      crocAlignment = Alignment.centerRight;
       if (nextAction == 1) {
         aggressive = true;
       }
     }
   }
 
+  correctRotation() {
+    if (nextTarget == 1) {
+      currentRotation = 90;
+    } else {
+      currentRotation = 0;
+    }
+  }
+
   resetCrocodile() {
-    currentPosition = 0;
+    crocAlignment = Alignment.center;
     aggressive = false;
   }
 
@@ -249,10 +258,29 @@ class Game extends ChangeNotifier {
     gameCountdown = 6;
     p1attacked = false;
     p2attacked = false;
+  }
+
+  checkWin() {
+    if (p1attacked && p1pressed) {
+      // p1 attacked and still pressed
+      alertText = "$p1name lost a finger!";
+      p1score--;
+    } else if (p2attacked && p2pressed) {
+      alertText = "$p2name lost a finger!";
+      p2score--;
+    } else if (p1faked && p1pressed) {
+      alertText = "$p1name didn't fall for it!";
+    } else if (p2faked && p2pressed) {
+      alertText = "$p2name didn't fall for it!";
+    }
     if (p1score == 0) {
-      alertText = "Player 2 won the game!"; // to do: victory and reset screen
+      alertText = "$p2name won the game!"; // to do: victory and reset screen
+      instructionText = "";
     } else if (p2score == 0) {
-      alertText = "Player 1 won the game!"; // to do: victory and reset screen
+      alertText = "$p1name won the game!"; // to do: victory and reset screen
+      instructionText = "";
+    } else {
+      instructionText = "Lift fingers to reset.";
     }
   }
 }
