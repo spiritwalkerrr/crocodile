@@ -1,6 +1,10 @@
 import 'package:crocodile/startscreen.dart';
 import 'package:flutter/material.dart';
 
+import 'game.dart';
+
+Game game = Game();
+
 void main() {
   runApp(const MyApp());
 }

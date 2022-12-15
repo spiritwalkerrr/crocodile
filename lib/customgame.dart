@@ -14,7 +14,6 @@ class CustomGame extends StatefulWidget {
 // gameboard containing a number of items placed in a stack
 class _CustomGameState extends State<CustomGame> {
   final _formKey = GlobalKey<FormState>();
-  late Game game;
 
   @override
   void initState() {
@@ -23,7 +22,6 @@ class _CustomGameState extends State<CustomGame> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
-    game = Game();
   }
 
   @override

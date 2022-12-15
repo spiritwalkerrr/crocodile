@@ -1,7 +1,6 @@
 import 'package:crocodile/startscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import "game.dart";
 import "main.dart";
 
 class GameBoard extends StatefulWidget {
@@ -13,8 +12,6 @@ class GameBoard extends StatefulWidget {
 
 // gameboard containing a number of items placed in a stack
 class _GameBoardState extends State<GameBoard> {
-  late Game game;
-
   @override
   void initState() {
     super.initState();
@@ -22,7 +19,6 @@ class _GameBoardState extends State<GameBoard> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
-    game = Game();
   }
 
   @override
@@ -41,7 +37,7 @@ class _GameBoardState extends State<GameBoard> {
                   SizedBox(
                     height: 30,
                     width: 90,
-                    child: generatep1scores(),
+                    child: generateScores(game.p1score),
                   ),
                   Expanded(
                       child: Column(
@@ -64,7 +60,7 @@ class _GameBoardState extends State<GameBoard> {
                   SizedBox(
                     height: 30,
                     width: 90,
-                    child: generatep2scores(),
+                    child: generateScores(game.p2score),
                   ),
                 ],
               ),
@@ -91,9 +87,19 @@ class _GameBoardState extends State<GameBoard> {
                       duration: const Duration(milliseconds: 600),
                       onEnd: () => game.checkWin(),
                       curve: Curves.easeInExpo,
-                      child: AnimatedRotation(
+                      child: AnimatedContainer(
+                        transform: Matrix4.translationValues(
+                              100,
+                              0,
+                              0,
+                            ) *
+                            Matrix4.rotationY(game.currentRotation.toDouble()) *
+                            Matrix4.translationValues(
+                              -100,
+                              0,
+                              0,
+                            ),
                         duration: const Duration(milliseconds: 500),
-                        turns: game.currentRotation.toDouble() / 180,
                         child: Image.asset(
                           game.aggressive == true
                               ? "assets/crocodile_angry.png"
@@ -152,26 +158,26 @@ class _GameBoardState extends State<GameBoard> {
     }
   }
 
-  generatep1scores() {
-    if (game.p1score < 4) {
+  generateScores(int score) {
+    if (score < 4) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Opacity(
-            opacity: game.p1score > 2 ? 1 : 0,
-            child: Expanded(
+          Expanded(
+            child: Opacity(
+              opacity: score > 2 ? 1 : 0,
               child: Image.asset("assets/heart.png"),
             ),
           ),
-          Opacity(
-            opacity: game.p1score > 1 ? 1 : 0,
-            child: Expanded(
+          Expanded(
+            child: Opacity(
+              opacity: score > 1 ? 1 : 0,
               child: Image.asset("assets/heart.png"),
             ),
           ),
-          Opacity(
-            opacity: game.p1score > 0 ? 1 : 0,
-            child: Expanded(
+          Expanded(
+            child: Opacity(
+              opacity: score > 0 ? 1 : 0,
               child: Image.asset("assets/heart.png"),
             ),
           )
@@ -183,46 +189,7 @@ class _GameBoardState extends State<GameBoard> {
         children: [
           Image.asset("assets/heart.png"),
           Text(
-            "x${game.p1score}",
-            style: const TextStyle(fontSize: 25),
-          )
-        ],
-      );
-    }
-  }
-
-  generatep2scores() {
-    if (game.p2score < 4) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Opacity(
-            opacity: game.p2score > 0 ? 1 : 0,
-            child: Expanded(
-              child: Image.asset("assets/heart.png"),
-            ),
-          ),
-          Opacity(
-            opacity: game.p2score > 1 ? 1 : 0,
-            child: Expanded(
-              child: Image.asset("assets/heart.png"),
-            ),
-          ),
-          Opacity(
-            opacity: game.p2score > 2 ? 1 : 0,
-            child: Expanded(
-              child: Image.asset("assets/heart.png"),
-            ),
-          )
-        ],
-      );
-    } else {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset("assets/heart.png"),
-          Text(
-            "x${game.p2score}",
+            "x${score}",
             style: const TextStyle(fontSize: 25),
           )
         ],

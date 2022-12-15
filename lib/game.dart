@@ -7,7 +7,7 @@ class Game extends ChangeNotifier {
   // basic variables
   bool p1pressed = false;
   bool p2pressed = false;
-  int currentRotation = 0; // -90 p2 90 p1
+  double currentRotation = 0; // -90 p2 90 p1
   var crocAlignment = Alignment.center;
   bool aggressive = false;
   int p1score = p1lives;
@@ -192,7 +192,7 @@ class Game extends ChangeNotifier {
       // see if its time to rotate
       rotateTimeout = randomNum(2, 5); // disable rotation for 1-2.5s
       if (currentRotation == 0) {
-        currentRotation = 90;
+        currentRotation = pi;
       } else {
         currentRotation = 0;
       }
@@ -241,7 +241,7 @@ class Game extends ChangeNotifier {
 
   correctRotation() {
     if (nextTarget == 1) {
-      currentRotation = 90;
+      currentRotation = pi;
     } else {
       currentRotation = 0;
     }
