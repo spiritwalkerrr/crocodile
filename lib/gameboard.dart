@@ -154,7 +154,7 @@ class _GameBoardState extends State<GameBoard> {
           },
           child: const Text("Back to Menu"));
     } else {
-      return Text("");
+      return const Text("");
     }
   }
 
