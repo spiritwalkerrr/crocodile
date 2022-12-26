@@ -15,8 +15,8 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
-    p1name = "Player 1";
-    p2name = "Player 2";
+    game.p1name = "Player 1";
+    game.p2name = "Player 2";
     super.initState();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
@@ -27,6 +27,7 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromRGBO(208, 219, 219, 1),
       body: Padding(
         padding: const EdgeInsets.all(50.0),
         child: Column(
@@ -50,31 +51,43 @@ class _StartScreenState extends State<StartScreen> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: ElevatedButton(
+                      child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              side: const BorderSide(
+                                  width: 2, color: Colors.black)),
                           onPressed: () {
-                            p1lives = 3;
-                            p2lives = 3;
-                            p1name = "Player 1";
-                            p2name = "Player 2";
+                            game.p1score = 3;
+                            game.p2score = 3;
+                            game.p1name = "Player 1";
+                            game.p2name = "Player 2";
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const GameBoard()));
                           },
-                          child: const Text("Quick Start")),
+                          child: const Text("Quick Start",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold))),
                     ),
                   ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
-                      child: ElevatedButton(
+                      child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              side: const BorderSide(
+                                  width: 2, color: Colors.black)),
                           onPressed: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => const CustomGame()));
                           },
-                          child: const Text("Custom Game")),
+                          child: const Text("Custom Game",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold))),
                     ),
                   )
                 ],

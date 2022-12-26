@@ -2,7 +2,6 @@ import 'package:crocodile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:crocodile/gameboard.dart';
-import "game.dart";
 
 class CustomGame extends StatefulWidget {
   const CustomGame({super.key});
@@ -27,73 +26,106 @@ class _CustomGameState extends State<CustomGame> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: const Color.fromRGBO(208, 219, 219, 1),
       body: Padding(
         padding: const EdgeInsets.all(50.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              Row(
-                children: [
-                  const Text(
-                    "How many Lives?",
-                    style: TextStyle(fontSize: 30),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    iconSize: 30,
-                    icon: const Icon(
-                      Icons.remove_circle_rounded,
-                    ),
-                    onPressed: () {
-                      setState(
-                        () {
-                          addLife(false);
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.grey),
+                    borderRadius: const BorderRadius.all(Radius.circular(5))),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      const Text(
+                        "How many lives?",
+                        style: TextStyle(fontSize: 30),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        iconSize: 30,
+                        icon: const Icon(
+                          Icons.remove_circle_rounded,
+                        ),
+                        onPressed: () {
+                          setState(
+                            () {
+                              addLife(false);
+                            },
+                          );
                         },
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    width: 40,
-                    child: Text(
-                      count.toString(),
-                      style: const TextStyle(fontSize: 30),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  IconButton(
-                    iconSize: 30,
-                    icon: const Icon(
-                      Icons.add_circle_rounded,
-                    ),
-                    onPressed: () {
-                      setState(
-                        () {
-                          addLife(true);
+                      ),
+                      SizedBox(
+                        width: 40,
+                        child: Text(
+                          count.toString(),
+                          style: const TextStyle(fontSize: 30),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      IconButton(
+                        iconSize: 30,
+                        icon: const Icon(
+                          Icons.add_circle_rounded,
+                        ),
+                        onPressed: () {
+                          setState(
+                            () {
+                              addLife(true);
+                            },
+                          );
                         },
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              const Spacer(),
-              TextFormField(
-                onChanged: (value) => p1name = value,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "P1 Name",
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 5.0),
+                        child: TextFormField(
+                          onChanged: (value) => game.p1name = value,
+                          cursorColor: Colors.black,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black)),
+                              labelText: "P1 Name",
+                              labelStyle: TextStyle(color: Colors.black)),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 5.0),
+                        child: TextFormField(
+                          onChanged: (value) => game.p2name = value,
+                          cursorColor: Colors.black,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black)),
+                              labelText: "P2 Name",
+                              labelStyle: TextStyle(color: Colors.black)),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
               const Spacer(),
-              TextFormField(
-                onChanged: (value) => p2name = value,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "P2 Name",
-                ),
-              ),
-              const Spacer(),
-              ElevatedButton(
+              OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                      side: const BorderSide(width: 2, color: Colors.black)),
                   onPressed: () {
                     setLives(count);
                     Navigator.push(
@@ -101,7 +133,9 @@ class _CustomGameState extends State<CustomGame> {
                         MaterialPageRoute(
                             builder: (context) => const GameBoard()));
                   },
-                  child: const Text("Start Game"))
+                  child: const Text("Start Game",
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold)))
             ],
           ),
         ),
@@ -118,8 +152,8 @@ class _CustomGameState extends State<CustomGame> {
   }
 
   setLives(value) {
-    p1lives = value;
-    p2lives = value;
+    game.p1score = value;
+    game.p2score = value;
   }
 
   int count = 3;

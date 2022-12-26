@@ -1,17 +1,18 @@
 import 'dart:async';
-import 'package:crocodile/main.dart';
 import 'package:flutter/material.dart';
 import "dart:math";
 
 class Game extends ChangeNotifier {
   // basic variables
+  String p1name = "Player 1";
+  String p2name = "Player 2";
   bool p1pressed = false;
   bool p2pressed = false;
   double currentRotation = 0; // -90 p2 90 p1
   var crocAlignment = Alignment.center;
   bool aggressive = false;
-  int p1score = p1lives;
-  int p2score = p2lives;
+  int p1score = 3;
+  int p2score = 3;
   bool p1attacked = false;
   bool p2attacked = false;
   bool p1faked = false;
@@ -29,7 +30,7 @@ class Game extends ChangeNotifier {
   String instructionText = "";
 // essential variables about the game start
   int gameState =
-      1; // 1 = before round, 2 = during countdown, 3 = during round, 4 = end of round
+      1; // 1 = before round, 2 = during countdown, 3 = during round, 4 = end of round, 5 = game over
   int gameCountdown = 6;
 
   int randomNum(int min, int max) {
@@ -42,7 +43,6 @@ class Game extends ChangeNotifier {
       // timer controls the game
       if (gameState == 2) {
         // if the game is during countdown
-        resetCrocodile(); // resets the crocodile to the middle
         instructionText = "";
         if (gameCountdown > 4) {
           // 4 = 2s left
@@ -87,13 +87,10 @@ class Game extends ChangeNotifier {
             }
           }
           animateAttack(); // animate attack
-        } else if (moveTimeout == 1) {
-          // check if player didnt react in time
-          resetRound();
-          p1attacked = false;
-          p2attacked = false;
-          p1faked = false;
-          p2faked = false;
+        }
+        if (moveTimeout == 1 && nextAction == 2) {
+          checkWin(
+              "timer"); // checking 1s after fake, if fingers are let go before you loose, even if croc has finished moving
         }
         if (moveTimeout > 1) {
           moveTimeout--;
@@ -111,39 +108,17 @@ class Game extends ChangeNotifier {
       // check if both buttons are pressed and if game is pre-countdown
       gameState = 2; // start countdown
     }
+    notifyListeners();
   }
 
   p1unpress() {
     p1pressed = false;
-    if (!p2pressed && gameState == 4) {
-      // check if previous round is over
-      gameState = 1; // reset to pre-game
-      alertText = "Place both fingers to start!";
-      instructionText = "";
-    } else if (gameState == 2) {
-      // during countdown it resets the countdown
+    if (gameState == 4 && !p2pressed) {
       resetRound();
-      alertText = "Place both fingers to start!";
-      instructionText = "";
-    } else if (gameState == 3) {
-      // check if we are during game
-      // when a finger is removed during round
-      if (!p1attacked) {
-        // checks if that player was NOT attacked
-        alertText = "$p1name wasn't attacked!";
-        p1score--;
-        if (p1score > 0) {
-          instructionText = "Lift fingers to reset.";
-        } else {
-          instructionText = "Player 1 lost the game.";
-        }
-        resetRound();
-        gameState = 4;
-      } else if (p1attacked) {
-        alertText = "$p1name evaded!";
-        instructionText = "Lift fingers to reset.";
-      }
+    } else {
+      checkWin("unpress");
     }
+    notifyListeners();
   }
 
   p2press() {
@@ -154,37 +129,17 @@ class Game extends ChangeNotifier {
       alertText = "Place both fingers to start!";
       instructionText = "";
     }
+    notifyListeners();
   }
 
   p2unpress() {
     p2pressed = false;
-    if (!p1pressed && gameState == 4) {
-      // check if previous round is over
-      gameState = 1; // reset to pre-game
-    } else if (gameState == 2) {
-      // during countdown it resets the countdown
+    if (gameState == 4 && !p1pressed) {
       resetRound();
-      alertText = "Place both fingers to start!";
-      instructionText = "";
-    } else if (gameState == 3) {
-      // check if we are during game
-      // when a finger is removed during round
-      if (!p2attacked) {
-        // checks if that player was NOT attacked
-        alertText = "$p2name wasn't attacked!";
-        p2score--;
-        if (p2score > 0) {
-          instructionText = "Lift fingers to reset.";
-        } else {
-          instructionText = "Player 2 lost the game.";
-        }
-        resetRound();
-        gameState = 4;
-      } else if (p2attacked) {
-        alertText = " $p2name evaded!";
-        instructionText = "Lift fingers to reset.";
-      }
+    } else {
+      checkWin("unpress");
     }
+    notifyListeners();
   }
 
   rotateCroc() {
@@ -216,10 +171,11 @@ class Game extends ChangeNotifier {
     // decide which type of attack
     int actionNum = randomNum(0, 7);
     if (actionNum > actionOdds) {
+      // attack
       nextAction = 1;
       actionOdds++;
     } else {
-      // attack player 2
+      // fake
       nextAction = 2;
       actionOdds--; // decrease chance of consecutive attacks
     }
@@ -253,34 +209,82 @@ class Game extends ChangeNotifier {
   }
 
   resetRound() {
-    gameState = 4;
+    alertText = "Place both fingers to start!";
+    instructionText = "";
+    gameState = 1;
     moveTimeout = 0;
     gameCountdown = 6;
     p1attacked = false;
     p2attacked = false;
+    p1faked = false;
+    p2faked = false;
+    resetCrocodile(); // resets the crocodile to the middle
   }
 
-  checkWin() {
-    if (p1attacked && p1pressed) {
-      // p1 attacked and still pressed
-      alertText = "$p1name lost a finger!";
-      p1score--;
-    } else if (p2attacked && p2pressed) {
-      alertText = "$p2name lost a finger!";
-      p2score--;
-    } else if (p1faked && p1pressed) {
-      alertText = "$p1name didn't fall for it!";
-    } else if (p2faked && p2pressed) {
-      alertText = "$p2name didn't fall for it!";
+  checkWin(reason) {
+    // we check this if someone lifted a finger or if time is up
+    // reason == "unpress" if finger liften
+    // reason == "timer" if time ran out
+    if (gameState == 2 && reason == "unpress") {
+      // checking for reason isnt necessariy, for better understanding only
+      // during countdown it resets the countdown
+      resetRound(); // reset to pre-game
+    } else if (gameState == 3 && reason == "timer") {
+      // check if time ran out, checking if we are mid-round also required (dont ask me why lol)
+      gameState = 4; // round is now over
+      if ((p1pressed && p2pressed) && p1faked || p2faked) {
+        // both fingers down and fake attack
+        if (p1faked) {
+          // p1 was fake attacked
+          alertText = "$p1name didn't fall for it";
+        } else if (p2faked) {
+          // p2 was fake attacked
+          alertText = "$p2name didn't fall for it";
+        }
+      }
+    } else if (gameState == 3 && reason == "attacked") {
+      gameState = 4;
+      if (p1pressed && p2pressed) {
+        // both fingers down but one player was attacked
+        if (p1attacked) {
+          // p1 was attacked
+          alertText = "$p1name lost a finger";
+          p1score--;
+        } else if (p2attacked) {
+          // p2 was attacked
+          alertText = "$p2name lost a finger";
+          p2score--;
+        }
+      }
+    } else if (gameState == 3 && reason == "unpress") {
+      // check if someone lifted finger and if it was during the game round
+      gameState = 4;
+      if (!p1pressed && p1attacked) {
+        // if p1 released because they were attacked
+        alertText = "$p1name evaded the crocodile";
+      } else if (!p2pressed && p2attacked) {
+        // if p2 released because they were attacked
+        alertText = "$p2name evaded the crocodile";
+      } else if (!p1pressed && !p1attacked) {
+        // if p1 released but wasn't attacked
+        alertText = "$p1name wasn't attacked";
+        p1score--;
+      } else if (!p2pressed && !p2attacked) {
+        // if p2 released but wasn't attacked
+        alertText = "$p2name wasn't attacked";
+        p2score--;
+      }
     }
-    if (p1score == 0) {
-      alertText = "$p2name won the game!"; // to do: victory and reset screen
-      instructionText = "";
+    if (p1score != 0 && p2score != 0 && gameState != 1) {
+      // after scores are adjusted if needed, we need to check if the game is not over yet
+      instructionText = "Lift both fingers to reset";
+    } else if (p1score == 0) {
+      gameState = 5;
+      alertText = "$p2name won the game!";
     } else if (p2score == 0) {
-      alertText = "$p1name won the game!"; // to do: victory and reset screen
-      instructionText = "";
-    } else {
-      instructionText = "Lift fingers to reset.";
+      gameState = 5;
+      alertText = "$p1name won the game!";
     }
+    notifyListeners();
   }
 }

@@ -9,11 +9,6 @@ void main() {
   runApp(const MyApp());
 }
 
-int p1lives = 3;
-int p2lives = 3;
-String p1name = "Player 1";
-String p2name = "Player 2";
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -23,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.black,
       ),
       home: const StartScreen(),
     );
